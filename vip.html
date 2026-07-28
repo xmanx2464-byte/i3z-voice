@@ -1,0 +1,127 @@
+<!DOCTYPE html>
+<html lang="ar" dir="rtl">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>VIP — i3z voice</title>
+<meta name="description" content="ترقّ لعضوية VIP في i3z voice للحصول على كل اللهجات، نصوص أطول، وجودة صوت أعلى.">
+<link rel="icon" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 32 32'%3E%3Crect width='32' height='32' rx='9' fill='%237C5CFF'/%3E%3Ccircle cx='16' cy='16' r='6' fill='white'/%3E%3C/svg%3E">
+<link rel="stylesheet" href="styles.css">
+</head>
+<body>
+
+<header class="site-header">
+  <nav class="container nav">
+    <a href="index.html" class="wordmark">
+      <span class="mark"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><path d="M12 3v18"/><path d="M8 7v10"/><path d="M16 7v10"/><path d="M4 10v4"/><path d="M20 10v4"/></svg></span>
+      i3z<span class="grad-text">voice</span>
+    </a>
+    <button class="nav-toggle" aria-label="فتح القائمة">☰</button>
+    <ul class="nav-links">
+      <li><a href="index.html#tool">الأداة</a></li>
+      <li><a href="vip.html">VIP</a></li>
+      <li><a href="about.html">من نحن</a></li>
+    </ul>
+  </nav>
+</header>
+
+<section class="section container">
+  <div class="vip-hero">
+    <span class="badge">👑 عضوية VIP</span>
+    <h1>افتح كل إمكانيات i3z voice</h1>
+    <p>كل اللهجات العربية، نصوص أطول بكثير، وأولوية في التوليد — بكود واحد تفعّله بثوانٍ.</p>
+  </div>
+
+  <div class="plan-grid">
+    <div class="plan-card">
+      <div class="p-name">مجاني</div>
+      <div class="p-price">0<span> ريال</span></div>
+      <ul>
+        <li>6 أصوات (السعودية، مصر، الإمارات)</li>
+        <li>حتى 300 حرف لكل تحويل</li>
+        <li>تحميل الملف الصوتي</li>
+      </ul>
+      <a href="index.html#tool" class="btn btn-outline btn-full">جرّب مجاناً</a>
+    </div>
+    <div class="plan-card featured">
+      <div class="p-name">VIP</div>
+      <div class="p-price">بكود اشتراك</div>
+      <ul>
+        <li>كل اللهجات (+30 صوت)</li>
+        <li>حتى 3000 حرف لكل تحويل</li>
+        <li>تحميل بجودة أعلى</li>
+        <li>دعم مباشر</li>
+      </ul>
+      <a href="#redeem" class="btn btn-primary btn-full">عندي كود، أفعّله</a>
+    </div>
+  </div>
+</section>
+
+<section class="section container" id="redeem">
+  <div class="tool-panel" style="max-width:520px; margin:0 auto;">
+    <h2 style="font-size:1.2rem; margin-bottom:6px;">فعّل كود VIP</h2>
+    <p style="color:var(--muted); font-size:.88rem; margin-bottom:20px;">أدخل الكود اللي حصلت عليه، وبيتفعّل تلقائياً في أداة التحويل.</p>
+    <div class="vip-input-row">
+      <input type="text" id="vipCodeInput" placeholder="مثال: VIP-XXXX-XXXX">
+      <button class="btn btn-primary" id="applyCodeBtn">تفعيل</button>
+    </div>
+    <div class="vip-status" id="vipStatus"></div>
+    <p style="color:var(--muted); font-size:.82rem; margin-top:18px;">
+      ما عندك كود؟ تواصل معنا من <a href="about.html" style="color:var(--accent);">صفحة من نحن</a> للحصول على واحد.
+    </p>
+  </div>
+</section>
+
+<footer class="site-footer">
+  <div class="container">
+    <div class="footer-grid">
+      <div class="footer-col">
+        <div class="wordmark">i3z<span class="grad-text">voice</span></div>
+      </div>
+      <div class="footer-col">
+        <h4>الموقع</h4>
+        <a href="index.html#tool">الأداة</a>
+        <a href="about.html">من نحن</a>
+        <a href="privacy-policy.html">سياسة الخصوصية</a>
+        <a href="terms.html">شروط الاستخدام</a>
+      </div>
+    </div>
+    <div class="footer-bottom">i3z voice — تحويل النص إلى صوت بلهجات عربية</div>
+  </div>
+</footer>
+
+<script src="main.js"></script>
+<script>
+document.getElementById('applyCodeBtn').addEventListener('click', async () => {
+  const input = document.getElementById('vipCodeInput');
+  const status = document.getElementById('vipStatus');
+  const btn = document.getElementById('applyCodeBtn');
+  const code = input.value.trim();
+  if(!code){ status.textContent = 'اكتب الكود أولاً'; status.className = 'vip-status err'; return; }
+  btn.disabled = true;
+  status.textContent = 'جاري التحقق...';
+  status.className = 'vip-status';
+  try{
+    const res = await fetch('/.netlify/functions/verify-code', {
+      method:'POST',
+      headers:{'Content-Type':'application/json'},
+      body: JSON.stringify({ code })
+    });
+    const data = await res.json();
+    if(data.valid){
+      status.textContent = '✓ تم تفعيل الكود بنجاح! روح لصفحة الأداة وابدأ الاستخدام.';
+      status.className = 'vip-status ok';
+      sessionStorage.setItem('i3z_vip_code', code);
+    }else{
+      status.textContent = 'الكود غير صحيح أو منتهي الصلاحية.';
+      status.className = 'vip-status err';
+    }
+  }catch(err){
+    status.textContent = 'تعذر التحقق، حاول مرة أخرى.';
+    status.className = 'vip-status err';
+  }
+  btn.disabled = false;
+});
+</script>
+</body>
+</html>

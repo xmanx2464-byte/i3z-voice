@@ -1,0 +1,9 @@
+{
+  "name": "i3z-voice",
+  "version": "1.0.0",
+  "private": true,
+  "description": "i3z voice — تحويل النص إلى صوت بلهجات عربية",
+  "dependencies": {
+    "msedge-tts": "^2.0.7"
+  }
+}

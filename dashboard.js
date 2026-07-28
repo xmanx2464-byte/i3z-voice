@@ -2,12 +2,13 @@
    لوحة تحكم i3z voice — تتصل مباشرة بـ GitHub عبر Git Gateway
    ============================================================ */
 
-// ⚠️ عدّل هذين السطرين ليطابقا حسابك ومستودعك على GitHub
-const GH_OWNER = 'CHANGE-ME';
+// ⚠️ معلومات مرجعية فقط (مو مستخدمة بالرابط، لأن Git Gateway مربوط أصلاً
+// بمستودع واحد محدد من إعدادات Netlify نفسها)
+const GH_OWNER = 'xmanx2464-byte';
 const GH_REPO  = 'i3z-voice';
 const GH_BRANCH = 'main';
 
-const API_BASE = `/.netlify/git/github/repos/${GH_OWNER}/${GH_REPO}`;
+const API_BASE = `/.netlify/git/github`;
 
 let settingsState = null, settingsSha = null;
 let codesState = null, codesSha = null;

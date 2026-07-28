@@ -290,7 +290,7 @@ document.addEventListener('DOMContentLoaded', () => {
   wireEvents();
   const identity = window.netlifyIdentity;
   if(!identity){
-    setStatus('تعذر تحميل نظام الدخول', 'err');
+    setStatus('تعذر تحميل البيانات: ' + err.message, 'err');
     return;
   }
   identity.on('init', user => { if(user) showApp(); else showGate(); });

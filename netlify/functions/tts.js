@@ -29,7 +29,7 @@ exports.handler = async (event) => {
   }
 
   try {
-    const { text, voice, code } = JSON.parse(event.body || '{}');
+    const { text, voice, code, pitch } = JSON.parse(event.body || '{}');
 
     if (!text || !text.trim()) {
       return { statusCode: 400, headers: {'Content-Type':'application/json'}, body: JSON.stringify({ error: 'الرجاء إدخال نص' }) };
@@ -61,7 +61,10 @@ exports.handler = async (event) => {
 
     const tts = new MsEdgeTTS();
     await tts.setMetadata(voice, OUTPUT_FORMAT.WEBM_24KHZ_16BIT_MONO_OPUS);
-    const { audioStream } = await tts.toStream(text);
+
+    const pitchNum = Number.isFinite(pitch) ? Math.max(-50, Math.min(50, pitch)) : 0;
+    const pitchStr = `${pitchNum >= 0 ? '+' : ''}${pitchNum}Hz`;
+    const { audioStream } = await tts.toStream(text, { pitch: pitchStr });
 
     const chunks = [];
     for await (const chunk of audioStream) {

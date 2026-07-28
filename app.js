@@ -15,6 +15,8 @@ const voiceGrid = document.getElementById('voiceGrid');
 const vipCodeInput = document.getElementById('vipCodeInput');
 const applyCodeBtn = document.getElementById('applyCodeBtn');
 const vipStatus = document.getElementById('vipStatus');
+const pitchRange = document.getElementById('pitchRange');
+const pitchBadge = document.getElementById('pitchBadge');
 const generateBtn = document.getElementById('generateBtn');
 const progressWrap = document.getElementById('progressWrap');
 const errorBox = document.getElementById('errorBox');
@@ -87,6 +89,17 @@ function updateCharCount(){
 textInput.addEventListener('input', updateCharCount);
 updateCharCount();
 
+function pitchLabel(val){
+  if(val < -20) return 'خشن جداً';
+  if(val < 0) return 'خشن قليلاً';
+  if(val === 0) return 'طبيعي';
+  if(val <= 20) return 'رقيق قليلاً';
+  return 'رقيق جداً';
+}
+pitchRange.addEventListener('input', () => {
+  pitchBadge.textContent = pitchLabel(Number(pitchRange.value));
+});
+
 applyCodeBtn.addEventListener('click', async () => {
   const code = vipCodeInput.value.trim();
   if(!code){ vipStatus.textContent = 'اكتب الكود أولاً'; vipStatus.className = 'vip-status err'; return; }
@@ -142,7 +155,12 @@ async function generateSpeech(){
     const res = await fetch('/.netlify/functions/tts', {
       method:'POST',
       headers:{'Content-Type':'application/json'},
-      body: JSON.stringify({ text, voice: selectedVoice.id, code: vipCode })
+      body: JSON.stringify({
+        text,
+        voice: selectedVoice.id,
+        code: vipCode,
+        pitch: Number(pitchRange.value)
+      })
     });
 
     if(!res.ok){

@@ -3,7 +3,7 @@
    ============================================================ */
 
 // ⚠️ عدّل هذين السطرين ليطابقا حسابك ومستودعك على GitHub
-const GH_OWNER = 'xmanx2464-byte';
+const GH_OWNER = 'CHANGE-ME';
 const GH_REPO  = 'i3z-voice';
 const GH_BRANCH = 'main';
 
@@ -78,7 +78,7 @@ async function loadAllData(){
     renderSettingsForm();
   }catch(err){
     console.error(err);
-    setStatus('تعذر تحميل البيانات: تأكد من اسم المستودع في dashboard.js', 'err');
+    setStatus('تعذر تحميل البيانات: ' + err.message, 'err');
   }finally{
     document.getElementById('loading').classList.add('hidden');
   }
@@ -290,7 +290,7 @@ document.addEventListener('DOMContentLoaded', () => {
   wireEvents();
   const identity = window.netlifyIdentity;
   if(!identity){
-    setStatus('تعذر تحميل البيانات: ' + err.message, 'err');
+    setStatus('تعذر تحميل نظام الدخول', 'err');
     return;
   }
   identity.on('init', user => { if(user) showApp(); else showGate(); });

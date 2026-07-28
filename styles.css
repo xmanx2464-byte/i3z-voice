@@ -161,8 +161,10 @@ textarea.text-input:focus{outline:2px solid var(--accent); border-color:var(--ac
 .voice-card.locked{opacity:.62;}
 .voice-card.locked:hover{opacity:1;}
 
-.control-row{display:flex; align-items:center; gap:14px; margin:18px 0; flex-wrap:wrap;}
-.control-row label{font-weight:700; font-size:.88rem; color:var(--muted);}
+.quality-badge{
+  font-family:'Cairo',sans-serif; font-weight:800;
+  padding:4px 12px; border-radius:999px; font-size:.8rem;
+}
 input[type=range]{flex:1; accent-color:var(--accent);}
 select{
   border:1px solid var(--border); border-radius:8px; padding:9px 12px; font-size:.9rem;

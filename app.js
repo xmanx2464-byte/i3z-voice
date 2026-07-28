@@ -1,7 +1,32 @@
 /* منطق أداة تحويل النص إلى صوت في الصفحة الرئيسية */
 
-const FREE_CHAR_LIMIT = 300;
-const VIP_CHAR_LIMIT = 3000;
+let FREE_CHAR_LIMIT = 300;
+let VIP_CHAR_LIMIT = 3000;
+
+/* تحميل إعدادات الموقع (اسم الموقع، الوصف، حدود النص) من content/settings.json
+   وهو نفس الملف اللي تعدّله لوحة التحكم — بدون هذا الجزء، تعديلات
+   لوحة التحكم كانت تُحفظ بس ما تظهر أبداً على الموقع. */
+async function loadSiteSettings(){
+  try{
+    const res = await fetch('/content/settings.json', { cache: 'no-store' });
+    if(!res.ok) return;
+    const s = await res.json();
+
+    if(s.site_title){
+      document.title = s.site_title;
+    }
+    if(s.site_tagline){
+      const tagline = document.getElementById('heroTagline');
+      if(tagline) tagline.textContent = s.site_tagline;
+    }
+    if(s.free_char_limit){ FREE_CHAR_LIMIT = Number(s.free_char_limit); }
+    if(s.vip_char_limit){ VIP_CHAR_LIMIT = Number(s.vip_char_limit); }
+
+    updateCharCount();
+  }catch(err){
+    console.error('تعذر تحميل إعدادات الموقع:', err);
+  }
+}
 
 let selectedVoice = null;
 let vipCode = null;
@@ -185,3 +210,5 @@ async function generateSpeech(){
 
 generateBtn.addEventListener('click', generateSpeech);
 regenerateBtn.addEventListener('click', generateSpeech);
+
+loadSiteSettings();

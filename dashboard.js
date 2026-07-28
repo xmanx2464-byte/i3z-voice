@@ -3,7 +3,7 @@
    ============================================================ */
 
 // ⚠️ عدّل هذين السطرين ليطابقا حسابك ومستودعك على GitHub
-const GH_OWNER = 'CHANGE-ME';
+const GH_OWNER = 'xmanx2464-byte';
 const GH_REPO  = 'i3z-voice';
 const GH_BRANCH = 'main';
 

@@ -29,7 +29,7 @@ exports.handler = async (event) => {
   }
 
   try {
-    const { text, voice, code, pitch } = JSON.parse(event.body || '{}');
+    const { text, voice, code, pitch, rate } = JSON.parse(event.body || '{}');
 
     if (!text || !text.trim()) {
       return { statusCode: 400, headers: {'Content-Type':'application/json'}, body: JSON.stringify({ error: 'الرجاء إدخال نص' }) };
@@ -64,7 +64,11 @@ exports.handler = async (event) => {
 
     const pitchNum = Number.isFinite(pitch) ? Math.max(-50, Math.min(50, pitch)) : 0;
     const pitchStr = `${pitchNum >= 0 ? '+' : ''}${pitchNum}Hz`;
-    const { audioStream } = await tts.toStream(text, { pitch: pitchStr });
+
+    const rateNum = Number.isFinite(rate) ? Math.max(-50, Math.min(50, rate)) : 0;
+    const rateStr = `${rateNum >= 0 ? '+' : ''}${rateNum}%`;
+
+    const { audioStream } = await tts.toStream(text, { pitch: pitchStr, rate: rateStr });
 
     const chunks = [];
     for await (const chunk of audioStream) {

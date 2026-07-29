@@ -11,7 +11,7 @@ let activeLang = 'ar';
 const textInput = document.getElementById('textInput');
 const charCount = document.getElementById('charCount');
 const langSelect = document.getElementById('langSelect');
-const voiceGrid = document.getElementById('voiceGrid');
+const voiceSelect = document.getElementById('voiceSelect');
 const vipCodeInput = document.getElementById('vipCodeInput');
 const applyCodeBtn = document.getElementById('applyCodeBtn');
 const vipStatus = document.getElementById('vipStatus');
@@ -46,34 +46,25 @@ langSelect.addEventListener('change', () => {
 
 function renderVoices(){
   const filtered = VOICES.filter(v => v.lang === activeLang);
-  voiceGrid.innerHTML = filtered.map((v) => {
-    const i = VOICES.indexOf(v);
-    return `
-    <div class="voice-card ${v.free ? '' : 'locked'} ${selectedVoice && selectedVoice.id === v.id ? 'selected' : ''}" data-index="${i}">
-      ${!v.free ? '<span class="vc-lock">VIP</span>' : ''}
-      <div class="vc-name">${v.dialect}</div>
-      <div class="vc-dialect">${v.gender}</div>
-    </div>
-  `;
-  }).join('');
   if(!selectedVoice || selectedVoice.lang !== activeLang){
-    selectedVoice = filtered[0];
-    document.querySelector('.voice-card')?.classList.add('selected');
+    selectedVoice = filtered.find(v => v.free) || filtered[0];
   }
+  voiceSelect.innerHTML = filtered.map((v) => {
+    const i = VOICES.indexOf(v);
+    const label = `${v.dialect} - ${v.gender}${!v.free ? ' 🔒 VIP' : ''}`;
+    return `<option value="${i}" ${selectedVoice && selectedVoice.id === v.id ? 'selected' : ''}>${label}</option>`;
+  }).join('');
 }
 renderVoices();
 
-voiceGrid.addEventListener('click', (e) => {
-  const card = e.target.closest('.voice-card');
-  if(!card) return;
-  const idx = Number(card.dataset.index);
+voiceSelect.addEventListener('change', () => {
+  const idx = Number(voiceSelect.value);
   const voice = VOICES[idx];
   if(!voice.free && !vipValid){
     showError('هذا الصوت متاح لمشتركي VIP فقط. فعّل كودك أو اشترك من صفحة VIP.');
+    voiceSelect.value = VOICES.indexOf(selectedVoice);
     return;
   }
-  document.querySelectorAll('.voice-card').forEach(c => c.classList.remove('selected'));
-  card.classList.add('selected');
   selectedVoice = voice;
   hideError();
 });

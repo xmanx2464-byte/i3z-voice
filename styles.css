@@ -49,6 +49,10 @@ input,select,textarea{font-family:inherit;}
   display:flex; align-items:center; justify-content:center;
 }
 .wordmark .mark svg{width:16px; height:16px; color:#fff;}
+.logo-img{
+  width:32px; height:32px; border-radius:50%; object-fit:cover;
+  border:1px solid var(--border);
+}
 .grad-text{
   background:var(--accent-grad); -webkit-background-clip:text; background-clip:text; color:transparent;
 }
@@ -176,6 +180,8 @@ select{
   flex:1; min-width:180px; background:var(--bg); border:1px solid var(--border); color:var(--text);
   padding:12px 14px; border-radius:10px; font-size:.92rem;
 }
+.settings-row{display:flex; gap:10px; flex-wrap:wrap;}
+.settings-row select{flex:1; min-width:140px;}
 .vip-status{font-size:.82rem; margin-top:8px; font-weight:700;}
 .vip-status.ok{color:var(--success);}
 .vip-status.err{color:var(--danger);}

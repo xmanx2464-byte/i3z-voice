@@ -1,32 +1,7 @@
 /* منطق أداة تحويل النص إلى صوت في الصفحة الرئيسية */
 
-let FREE_CHAR_LIMIT = 300;
-let VIP_CHAR_LIMIT = 3000;
-
-/* تحميل إعدادات الموقع (اسم الموقع، الوصف، حدود النص) من content/settings.json
-   وهو نفس الملف اللي تعدّله لوحة التحكم — بدون هذا الجزء، تعديلات
-   لوحة التحكم كانت تُحفظ بس ما تظهر أبداً على الموقع. */
-async function loadSiteSettings(){
-  try{
-    const res = await fetch('/content/settings.json', { cache: 'no-store' });
-    if(!res.ok) return;
-    const s = await res.json();
-
-    if(s.site_title){
-      document.title = s.site_title;
-    }
-    if(s.site_tagline){
-      const tagline = document.getElementById('heroTagline');
-      if(tagline) tagline.textContent = s.site_tagline;
-    }
-    if(s.free_char_limit){ FREE_CHAR_LIMIT = Number(s.free_char_limit); }
-    if(s.vip_char_limit){ VIP_CHAR_LIMIT = Number(s.vip_char_limit); }
-
-    updateCharCount();
-  }catch(err){
-    console.error('تعذر تحميل إعدادات الموقع:', err);
-  }
-}
+const FREE_CHAR_LIMIT = 300;
+const VIP_CHAR_LIMIT = 3000;
 
 let selectedVoice = null;
 let vipCode = null;
@@ -35,13 +10,15 @@ let activeLang = 'ar';
 
 const textInput = document.getElementById('textInput');
 const charCount = document.getElementById('charCount');
-const langTabs = document.getElementById('langTabs');
+const langSelect = document.getElementById('langSelect');
 const voiceGrid = document.getElementById('voiceGrid');
 const vipCodeInput = document.getElementById('vipCodeInput');
 const applyCodeBtn = document.getElementById('applyCodeBtn');
 const vipStatus = document.getElementById('vipStatus');
 const pitchRange = document.getElementById('pitchRange');
 const pitchBadge = document.getElementById('pitchBadge');
+const rateRange = document.getElementById('rateRange');
+const rateBadge = document.getElementById('rateBadge');
 const generateBtn = document.getElementById('generateBtn');
 const progressWrap = document.getElementById('progressWrap');
 const errorBox = document.getElementById('errorBox');
@@ -56,17 +33,14 @@ function currentLimit(){
 
 function renderLangTabs(){
   const langs = [...new Map(VOICES.map(v => [v.lang, v.langLabel])).entries()];
-  langTabs.innerHTML = langs.map(([lang, label]) => `
-    <button class="tool-tab ${lang === activeLang ? 'active' : ''}" data-lang="${lang}">${label}</button>
+  langSelect.innerHTML = langs.map(([lang, label]) => `
+    <option value="${lang}" ${lang === activeLang ? 'selected' : ''}>${label}</option>
   `).join('');
 }
 renderLangTabs();
 
-langTabs.addEventListener('click', (e) => {
-  const tab = e.target.closest('[data-lang]');
-  if(!tab) return;
-  activeLang = tab.dataset.lang;
-  document.querySelectorAll('.tool-tab').forEach(t => t.classList.toggle('active', t.dataset.lang === activeLang));
+langSelect.addEventListener('change', () => {
+  activeLang = langSelect.value;
   renderVoices();
 });
 
@@ -123,6 +97,17 @@ function pitchLabel(val){
 }
 pitchRange.addEventListener('input', () => {
   pitchBadge.textContent = pitchLabel(Number(pitchRange.value));
+});
+
+function rateLabel(val){
+  if(val < -20) return 'بطيء جداً';
+  if(val < 0) return 'أبطأ قليلاً';
+  if(val === 0) return 'عادية';
+  if(val <= 20) return 'أسرع قليلاً';
+  return 'سريع جداً';
+}
+rateRange.addEventListener('input', () => {
+  rateBadge.textContent = rateLabel(Number(rateRange.value));
 });
 
 applyCodeBtn.addEventListener('click', async () => {
@@ -184,7 +169,8 @@ async function generateSpeech(){
         text,
         voice: selectedVoice.id,
         code: vipCode,
-        pitch: Number(pitchRange.value)
+        pitch: Number(pitchRange.value),
+        rate: Number(rateRange.value)
       })
     });
 
@@ -210,5 +196,3 @@ async function generateSpeech(){
 
 generateBtn.addEventListener('click', generateSpeech);
 regenerateBtn.addEventListener('click', generateSpeech);
-
-loadSiteSettings();

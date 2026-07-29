@@ -30,41 +30,54 @@
   <div class="container">
     <span class="eyebrow"><span class="wave-row"><span></span><span></span><span></span><span></span><span></span></span> تحويل نص إلى صوت بلهجات عربية</span>
     <h1>اكتب نصك، واسمعه بصوت <span class="grad-text">طبيعي بلهجتك</span></h1>
-    <p id="heroTagline">أدخل أي نص واختر لهجة، واحصل على ملف صوتي عالي الجودة جاهز للتحميل — خلال ثوانٍ.</p>
+    <p>أدخل أي نص واختر لهجة، واحصل على ملف صوتي عالي الجودة جاهز للتحميل — خلال ثوانٍ.</p>
   </div>
 </section>
 
 <div class="container" id="tool">
   <div class="tool-panel">
 
-    <textarea class="text-input" id="textInput" placeholder="اكتب أو الصق النص اللي تبي تحوّله إلى صوت هنا..." maxlength="3000"></textarea>
+    <div class="vip-input-row">
+      <input type="text" id="vipCodeInput" placeholder="عندك كود VIP؟ اكتبه هنا لفتح كل الأصوات والنصوص الأطول">
+      <button class="btn btn-outline" id="applyCodeBtn">تفعيل الكود</button>
+    </div>
+    <div id="vipStatus" class="vip-status"></div>
+
+    <a href="mailto:xmanx2464@gmail.com?subject=%D8%B7%D9%84%D8%A8%20%D9%83%D9%88%D8%AF%20VIP" class="btn btn-outline btn-full" id="contactBtn" style="margin-top:8px;">
+      ✉️ تواصل معنا للحصول على كود VIP
+    </a>
+
+    <button class="btn btn-primary btn-full" id="generateBtn" style="margin-top:14px;">
+      حوّل إلى صوت
+    </button>
+
+    <div class="section-head" style="margin:26px 0 12px;">
+      <h2 style="font-size:1.05rem;">اختر اللغة والصوت</h2>
+    </div>
+    <select class="lang-select" id="langSelect" style="width:100%; margin-bottom:14px;"></select>
+    <div class="voice-grid" id="voiceGrid"></div>
+
+    <textarea class="text-input" id="textInput" placeholder="اكتب أو الصق النص اللي تبي تحوّله إلى صوت هنا..." maxlength="3000" style="margin-top:20px;"></textarea>
     <div class="char-count">
       <span id="charCount">0 / 300 حرف (النسخة المجانية)</span>
       <span id="charLimitNote"></span>
     </div>
 
-    <div class="section-head" style="margin:26px 0 12px;">
-      <h2 style="font-size:1.05rem;">اختر اللغة والصوت</h2>
-    </div>
-    <div class="tool-tabs" id="langTabs"></div>
-    <div class="voice-grid" id="voiceGrid"></div>
-
-    <div class="vip-input-row">
-  <input type="text" id="vipCodeInput" placeholder="عندك كود VIP؟ اكتبه هنا لفتح كل الأصوات والنصوص الأطول">
-  <button class="btn btn-outline" id="applyCodeBtn">تفعيل الكود</button>
-</div>
-<div id="vipStatus" class="vip-status" style="margin-top:8px; font-size:.85rem;"></div>
    <div class="control-row">
    <label for="pitchRange">طبقة الصوت</label>
-   <span style="font-size:.78rem; color:var(--muted);">خشن</span>
+   <span style="font-size:.78rem; color:var(--muted);">غليظ</span>
    <input type="range" id="pitchRange" min="-50" max="50" step="10" value="0">
    <span style="font-size:.78rem; color:var(--muted);">رقيق</span>
    <span class="quality-badge" id="pitchBadge" style="background:rgba(124,92,255,0.12); color:var(--accent);">طبيعي</span>
     </div>
 
-    <button class="btn btn-primary btn-full" id="generateBtn" style="margin-top:10px;">
-      حوّل إلى صوت
-    </button>
+   <div class="control-row" style="margin-top:10px;">
+   <label for="rateRange">سرعة القراءة</label>
+   <span style="font-size:.78rem; color:var(--muted);">بطيء</span>
+   <input type="range" id="rateRange" min="-50" max="50" step="10" value="0">
+   <span style="font-size:.78rem; color:var(--muted);">سريع</span>
+   <span class="quality-badge" id="rateBadge" style="background:rgba(124,92,255,0.12); color:var(--accent);">عادية</span>
+    </div>
 
     <div class="progress-wrap" id="progressWrap">
       <div class="progress-bar"><div class="progress-bar-fill"></div></div>

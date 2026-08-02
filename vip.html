@@ -59,13 +59,22 @@
 
 <section class="section container" id="redeem">
   <div class="tool-panel" style="max-width:520px; margin:0 auto;">
-    <h2 style="font-size:1.2rem; margin-bottom:6px;">فعّل كود VIP</h2>
-    <p style="color:var(--muted); font-size:.88rem; margin-bottom:20px;">أدخل الكود اللي حصلت عليه، وبيتفعّل تلقائياً في أداة التحويل.</p>
-    <div class="vip-input-row">
-      <input type="text" id="vipCodeInput" placeholder="مثال: VIP-XXXX-XXXX">
-      <button class="btn btn-primary" id="applyCodeBtn">تفعيل</button>
+
+    <div id="googleAuthBox" style="margin-bottom:20px; text-align:center;">
+      <button id="googleSignInBtn" class="btn btn-outline btn-full">تسجيل الدخول بجوجل</button>
+      <div id="userInfo" style="display:none; font-size:.85rem; color:var(--muted); margin-top:10px;"></div>
     </div>
-    <div class="vip-status" id="vipStatus"></div>
+
+    <div id="codeSection">
+      <h2 style="font-size:1.2rem; margin-bottom:6px;">فعّل كود VIP</h2>
+      <p style="color:var(--muted); font-size:.88rem; margin-bottom:20px;">سجّل دخولك بجوجل الأول، وبعدين أدخل الكود مرة واحدة بس — وهيفضل مفعّل تلقائياً في كل زيارة.</p>
+      <div class="vip-input-row">
+        <input type="text" id="vipCodeInput" placeholder="مثال: VIP-XXXX-XXXX">
+        <button class="btn btn-primary" id="applyCodeBtn">تفعيل</button>
+      </div>
+      <div class="vip-status" id="vipStatus"></div>
+    </div>
+
     <p style="color:var(--muted); font-size:.82rem; margin-top:18px;">
       ما عندك كود؟ تواصل معنا من <a href="about.html" style="color:var(--accent);">صفحة من نحن</a> للحصول على واحد.
     </p>
@@ -90,38 +99,101 @@
   </div>
 </footer>
 
-<script src="main.js"></script>
-<script>
-document.getElementById('applyCodeBtn').addEventListener('click', async () => {
-  const input = document.getElementById('vipCodeInput');
+<script type="module">
+  import { initializeApp } from "https://www.gstatic.com/firebasejs/10.12.0/firebase-app.js";
+  import { getAuth, GoogleAuthProvider, signInWithPopup, onAuthStateChanged } from "https://www.gstatic.com/firebasejs/10.12.0/firebase-auth.js";
+  import { getFirestore, doc, getDoc, setDoc } from "https://www.gstatic.com/firebasejs/10.12.0/firebase-firestore.js";
+
+  const firebaseConfig = {
+    apiKey: "AIzaSyALZgdKoDdC_b98Kez1jbyGOYF-K_PJoRA",
+    authDomain: "i3z-voice-vip.firebaseapp.com",
+    projectId: "i3z-voice-vip",
+    storageBucket: "i3z-voice-vip.firebasestorage.app",
+    messagingSenderId: "995721255507",
+    appId: "1:995721255507:web:bda12ba09859824527c4a6"
+  };
+
+  const app = initializeApp(firebaseConfig);
+  const auth = getAuth(app);
+  const db = getFirestore(app);
+
+  const signInBtn = document.getElementById('googleSignInBtn');
+  const userInfo = document.getElementById('userInfo');
+  const codeSection = document.getElementById('codeSection');
   const status = document.getElementById('vipStatus');
-  const btn = document.getElementById('applyCodeBtn');
-  const code = input.value.trim();
-  if(!code){ status.textContent = 'اكتب الكود أولاً'; status.className = 'vip-status err'; return; }
-  btn.disabled = true;
-  status.textContent = 'جاري التحقق...';
-  status.className = 'vip-status';
-  try{
-    const res = await fetch('/.netlify/functions/verify-code', {
-      method:'POST',
-      headers:{'Content-Type':'application/json'},
-      body: JSON.stringify({ code })
-    });
-    const data = await res.json();
-    if(data.valid){
-      status.textContent = '✓ تم تفعيل الكود بنجاح! روح لصفحة الأداة وابدأ الاستخدام.';
+
+  async function checkVipStatus(email) {
+    const userRef = doc(db, "vipUsers", email);
+    const userSnap = await getDoc(userRef);
+    if (userSnap.exists() && userSnap.data().vip === true) {
+      codeSection.style.display = 'none';
+      status.textContent = '✓ عضويتك VIP مفعّلة! روح لصفحة الأداة وابدأ الاستخدام.';
       status.className = 'vip-status ok';
-      sessionStorage.setItem('i3z_vip_code', code);
-    }else{
-      status.textContent = 'الكود غير صحيح أو منتهي الصلاحية.';
+      status.style.display = 'block';
+      sessionStorage.setItem('i3z_vip_code', userSnap.data().code || 'vip');
+    } else {
+      codeSection.style.display = 'block';
+    }
+  }
+
+  signInBtn.addEventListener('click', async () => {
+    try {
+      const result = await signInWithPopup(auth, new GoogleAuthProvider());
+      userInfo.textContent = 'مسجّل دخول بـ: ' + result.user.email;
+      userInfo.style.display = 'block';
+      signInBtn.style.display = 'none';
+      await checkVipStatus(result.user.email);
+    } catch (err) {
+      alert('حدث خطأ في تسجيل الدخول، حاول مرة أخرى.');
+    }
+  });
+
+  onAuthStateChanged(auth, (user) => {
+    if (user) {
+      userInfo.textContent = 'مسجّل دخول بـ: ' + user.email;
+      userInfo.style.display = 'block';
+      signInBtn.style.display = 'none';
+      checkVipStatus(user.email);
+    }
+  });
+
+  document.getElementById('applyCodeBtn').addEventListener('click', async () => {
+    const input = document.getElementById('vipCodeInput');
+    const btn = document.getElementById('applyCodeBtn');
+    const code = input.value.trim();
+    const user = auth.currentUser;
+
+    if(!user){ status.textContent = 'سجّل دخولك بجوجل الأول من فضلك'; status.className = 'vip-status err'; status.style.display='block'; return; }
+    if(!code){ status.textContent = 'اكتب الكود أولاً'; status.className = 'vip-status err'; status.style.display='block'; return; }
+
+    btn.disabled = true;
+    status.textContent = 'جاري التحقق...';
+    status.className = 'vip-status';
+    status.style.display = 'block';
+    try{
+      const res = await fetch('/.netlify/functions/verify-code', {
+        method:'POST',
+        headers:{'Content-Type':'application/json'},
+        body: JSON.stringify({ code })
+      });
+      const data = await res.json();
+      if(data.valid){
+        status.textContent = '✓ تم تفعيل الكود بنجاح! روح لصفحة الأداة وابدأ الاستخدام.';
+        status.className = 'vip-status ok';
+        sessionStorage.setItem('i3z_vip_code', code);
+        await setDoc(doc(db, "vipUsers", user.email), { vip: true, code: code });
+        codeSection.style.display = 'none';
+      }else{
+        status.textContent = 'الكود غير صحيح أو منتهي الصلاحية.';
+        status.className = 'vip-status err';
+      }
+    }catch(err){
+      status.textContent = 'تعذر التحقق، حاول مرة أخرى.';
       status.className = 'vip-status err';
     }
-  }catch(err){
-    status.textContent = 'تعذر التحقق، حاول مرة أخرى.';
-    status.className = 'vip-status err';
-  }
-  btn.disabled = false;
-});
+    btn.disabled = false;
+  });
 </script>
+<script src="main.js"></script>
 </body>
 </html>

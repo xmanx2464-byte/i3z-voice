@@ -101,7 +101,7 @@
 
 <script type="module">
   import { initializeApp } from "https://www.gstatic.com/firebasejs/10.12.0/firebase-app.js";
-  import { getAuth, GoogleAuthProvider, signInWithPopup, onAuthStateChanged } from "https://www.gstatic.com/firebasejs/10.12.0/firebase-auth.js";
+  import { getAuth, GoogleAuthProvider, signInWithRedirect, getRedirectResult, onAuthStateChanged } from "https://www.gstatic.com/firebasejs/10.12.0/firebase-auth.js";
   import { getFirestore, doc, getDoc, setDoc } from "https://www.gstatic.com/firebasejs/10.12.0/firebase-firestore.js";
 
   const firebaseConfig = {
@@ -136,16 +136,19 @@
     }
   }
 
-  signInBtn.addEventListener('click', async () => {
-    try {
-      const result = await signInWithPopup(auth, new GoogleAuthProvider());
+  signInBtn.addEventListener('click', () => {
+    signInWithRedirect(auth, new GoogleAuthProvider());
+  });
+
+  getRedirectResult(auth).then(async (result) => {
+    if (result && result.user) {
       userInfo.textContent = 'مسجّل دخول بـ: ' + result.user.email;
       userInfo.style.display = 'block';
       signInBtn.style.display = 'none';
       await checkVipStatus(result.user.email);
-    } catch (err) {
-      alert('حدث خطأ في تسجيل الدخول، حاول مرة أخرى.');
     }
+  }).catch((err) => {
+    console.error(err);
   });
 
   onAuthStateChanged(auth, (user) => {

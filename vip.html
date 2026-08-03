@@ -67,7 +67,6 @@
 
     <div id="codeSection">
       <h2 style="font-size:1.2rem; margin-bottom:6px;">فعّل كود VIP</h2>
-      <p style="color:var(--muted); font-size:.88rem; margin-bottom:20px;">سجّل دخولك بجوجل الأول، وبعدين أدخل الكود مرة واحدة بس — وهيفضل مفعّل تلقائياً في كل زيارة.</p>
       <div class="vip-input-row">
         <input type="text" id="vipCodeInput" placeholder="مثال: VIP-XXXX-XXXX">
         <button class="btn btn-primary" id="applyCodeBtn">تفعيل</button>
@@ -101,7 +100,7 @@
 
 <script type="module">
   import { initializeApp } from "https://www.gstatic.com/firebasejs/10.12.0/firebase-app.js";
-  import { getAuth, GoogleAuthProvider, signInWithRedirect, getRedirectResult, onAuthStateChanged } from "https://www.gstatic.com/firebasejs/10.12.0/firebase-auth.js";
+  import { getAuth, GoogleAuthProvider, signInWithRedirect, getRedirectResult, onAuthStateChanged, setPersistence, browserLocalPersistence } from "https://www.gstatic.com/firebasejs/10.12.0/firebase-auth.js";
   import { getFirestore, doc, getDoc, setDoc } from "https://www.gstatic.com/firebasejs/10.12.0/firebase-firestore.js";
 
   const firebaseConfig = {
@@ -121,6 +120,12 @@
   const userInfo = document.getElementById('userInfo');
   const codeSection = document.getElementById('codeSection');
   const status = document.getElementById('vipStatus');
+  const applyBtn = document.getElementById('applyCodeBtn');
+
+  applyBtn.disabled = true;
+  status.textContent = 'جاري التحقق من حالة تسجيل الدخول...';
+  status.className = 'vip-status';
+  status.style.display = 'block';
 
   async function checkVipStatus(email) {
     const userRef = doc(db, "vipUsers", email);
@@ -132,23 +137,18 @@
       status.style.display = 'block';
       sessionStorage.setItem('i3z_vip_code', userSnap.data().code || 'vip');
     } else {
-      codeSection.style.display = 'block';
+      status.style.display = 'none';
     }
   }
 
-  signInBtn.addEventListener('click', () => {
-    signInWithRedirect(auth, new GoogleAuthProvider());
+  setPersistence(auth, browserLocalPersistence).then(() => {
+    signInBtn.addEventListener('click', () => {
+      signInWithRedirect(auth, new GoogleAuthProvider());
+    });
   });
 
-  getRedirectResult(auth).then(async (result) => {
-    if (result && result.user) {
-      userInfo.textContent = 'مسجّل دخول بـ: ' + result.user.email;
-      userInfo.style.display = 'block';
-      signInBtn.style.display = 'none';
-      await checkVipStatus(result.user.email);
-    }
-  }).catch((err) => {
-    console.error(err);
+  getRedirectResult(auth).catch((err) => {
+    console.error('redirect error', err);
   });
 
   onAuthStateChanged(auth, (user) => {
@@ -156,20 +156,23 @@
       userInfo.textContent = 'مسجّل دخول بـ: ' + user.email;
       userInfo.style.display = 'block';
       signInBtn.style.display = 'none';
+      applyBtn.disabled = false;
       checkVipStatus(user.email);
+    } else {
+      applyBtn.disabled = false;
+      status.style.display = 'none';
     }
   });
 
-  document.getElementById('applyCodeBtn').addEventListener('click', async () => {
+  applyBtn.addEventListener('click', async () => {
     const input = document.getElementById('vipCodeInput');
-    const btn = document.getElementById('applyCodeBtn');
     const code = input.value.trim();
     const user = auth.currentUser;
 
     if(!user){ status.textContent = 'سجّل دخولك بجوجل الأول من فضلك'; status.className = 'vip-status err'; status.style.display='block'; return; }
     if(!code){ status.textContent = 'اكتب الكود أولاً'; status.className = 'vip-status err'; status.style.display='block'; return; }
 
-    btn.disabled = true;
+    applyBtn.disabled = true;
     status.textContent = 'جاري التحقق...';
     status.className = 'vip-status';
     status.style.display = 'block';
@@ -194,7 +197,7 @@
       status.textContent = 'تعذر التحقق، حاول مرة أخرى.';
       status.className = 'vip-status err';
     }
-    btn.disabled = false;
+    applyBtn.disabled = false;
   });
 </script>
 <script src="main.js"></script>
